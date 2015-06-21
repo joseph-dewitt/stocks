@@ -4,10 +4,16 @@
 #i also have to include the quantmod library
 library(XML)
 library(quantmod)
+library(rvest)
 #these lines read tables and make lists of ticker symbols
-table500 <- readHTMLTable('http://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[[1]]
+url500 <- "http://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+table500 <- url500 %>%
+  html() %>%
+  html_nodes(xpath='//*[@id="mw-content-text"]/table[1]') %>%
+  html_table()
+  table500 <- table500[[1]]
   list500 <- table500[,"Ticker symbol"]
-table400 <- readHTMLTable('http://en.wikipedia.org/wiki/List_of_S%26P_400_companies')[[1]]
+table400 <- html('http://en.wikipedia.org/wiki/List_of_S%26P_400_companies')[[1]]
   list400 <- table400[,"Ticker Symbol"]
 #capital S on this one
 table600<-read.csv("smallcap.csv",header=TRUE)
@@ -22,9 +28,9 @@ clist600<-as.character(list600)
 masterlist<-c(clist400,clist500,clist600)
 #getFinancials doesn't work with lapply
 #so a for loop will hopefully work
-for(i in 1:length(masterlist)){
+for(i in 1:length(list500)){
   try(
-    getFinancials(masterlist[i])
+    getFinancials(list500[i])
   )
 }
 
